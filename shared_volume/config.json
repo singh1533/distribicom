@@ -1,0 +1,13 @@
+{
+  "database": {
+    "num_records": 16384,
+    "record_bytes": 256
+  },
+  "crypto": {
+    "lattice_dimension": 2048
+  },
+  "benchmark": {
+    "mode": "single",
+    "batch_size": 1
+  }
+}

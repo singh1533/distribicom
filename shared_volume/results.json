@@ -1,0 +1,56 @@
+{
+  "scheme": "Distribicom",
+  "variant": null,
+  "status": "error",
+  "error": "lattice_dimension=2048 is below Distribicom's minimum of 4096 and will hang, not just run slowly: SEAL's coefficient-modulus chain at this size doesn't support keyswitching, so Galois key generation fails silently inside a worker thread and the round never completes. Use lattice_dimension >= 4096 (4096 is the minimum that works; 8192 is safer).",
+  "parameters_echo": {
+    "database": {
+      "num_records": 16384,
+      "record_bytes": 256
+    },
+    "crypto": {
+      "lattice_dimension": 2048
+    },
+    "benchmark": {
+      "mode": "single",
+      "batch_size": 1
+    }
+  },
+  "phases": {
+    "setup": {
+      "mean_ms": null,
+      "note": "run failed before completion"
+    },
+    "client_offline_download": {
+      "mean_ms": null,
+      "note": "run failed"
+    },
+    "query_generation": {
+      "mean_ms": null,
+      "note": "run failed"
+    },
+    "server_answer": {
+      "mean_ms": null,
+      "std_dev_ms": null,
+      "all_trials_ms": [],
+      "num_trials": 0,
+      "note": "run failed: lattice_dimension=2048 is below Distribicom's minimum of 4096 and will hang, not just run slowly: SEAL's coefficient-modulus chain at this size doesn't support keyswitching, so Galois key generation fails silently inside a worker thread and the round never completes. Use lattice_dimension >= 4096 (4096 is the minimum that works; 8192 is safer)."
+    },
+    "client_extract": {
+      "mean_ms": null,
+      "note": "run failed"
+    }
+  },
+  "communication": {
+    "offline_download_bytes": null,
+    "query_upload_bytes": null,
+    "response_bytes": null
+  },
+  "unmapped_parameters": {},
+  "notes": [
+    "Distribicom stores the DB as a db_rows x db_cols matrix of SEAL/BGV plaintexts; each plaintext packs elements_per_ptxt = floor(N / ceil(8*record_bytes/logt)) records. For this run elements_per_ptxt=19, so num_records=16384 is realised as a 30x30 plaintext matrix holding 17100 records (rounded up to a full square matrix).",
+    "polynomial_degree (SEAL ring degree N) = crypto.lattice_dimension = 2048; it must be a power of two supported by SEAL (1024/2048/4096/8192/16384/32768).",
+    "logarithm_plaintext_coefficient is fixed at 20 (not exposed by the generic config).",
+    "lattice_dimension=2048 is below Distribicom's minimum of 4096 and will hang, not just run slowly: SEAL's coefficient-modulus chain at this size doesn't support keyswitching, so Galois key generation fails silently inside a worker thread and the round never completes. Use lattice_dimension >= 4096 (4096 is the minimum that works; 8192 is safer)."
+  ]
+}

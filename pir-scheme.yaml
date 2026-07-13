@@ -1,0 +1,38 @@
+id: distribicom
+name: Distribicom
+category: Lattice-based                 # BGV (Microsoft SEAL v4.0.0) + a SealPIR fork
+image: distribicom-bench:latest
+platform: linux/amd64
+adapter: generic
+honored_params: [num_records, record_bytes, lattice_dimension, batch_size]
+supports_batch: true                    # batch_size -> num_queries (concurrent queries/round)
+fixed_params:
+  logarithm_plaintext_coefficient: 20   # SealPIR-recommended logt, compiled/config default
+  dimensions: 2                          # SealPIR recursion depth, fixed in create_configs
+  scheme: bgv
+  num_workers: 1                         # single in-container worker
+upstream:
+  repo: elkanatovey/distribicom          # SealPIR dependency is elkanatovey/sealpir-distribicom
+  ref: main
+notes: >
+  Distribicom is a distributed, Freivalds-verifiable PIR system: main_server hands
+  PIR work to untrusted worker(s) over gRPC, verifies their partial answers and
+  aggregates. The wrapper launches main_server + one worker on localhost and reads
+  the per-round wall-clock times the server logs for a 10-round epoch. Those 10
+  rounds are the trials for the headline server_answer phase, which therefore
+  covers work distribution + worker homomorphic computation + Freivalds
+  verification (FREIVALDS is on by default) + step-2 aggregation. num_records maps
+  onto a db_rows x db_cols matrix of BGV plaintexts (each packing
+  floor(N/ceil(8*record_bytes/logt)) records), rounded up to a full square matrix,
+  so the realised capacity is >= num_records; record_bytes -> size_per_element and
+  lattice_dimension -> polynomial_degree (the SEAL ring degree N, a power of two).
+  MUST be >= 4096 (N=1024/2048 make SEAL's coefficient-modulus chain too short for
+  keyswitching, so client setup fails silently and the run hangs until the wrapper's
+  timeout instead of erroring; the wrapper now rejects N<4096 immediately). 8192 and
+  above also work and are safer. mode=single runs one query
+  per round; mode=batch maps batch_size to the number of concurrent single-record
+  queries answered per round (not one query fetching many records). setup,
+  client_offline_download, query_generation and client_extract are not emitted as
+  timed metrics by the server binary and are reported as null; communication sizes
+  are likewise not emitted and reported as null rather than fabricated. Very large
+  parameters may exceed Distribicom's 5 MiB gRPC message cap.
